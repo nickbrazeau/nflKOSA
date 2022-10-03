@@ -1,0 +1,34 @@
+---
+title: "Simulated Annealing for a NFL Knockout Pool"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RunWhatYouBrung}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(nflKOSA)
+```
+
+```{r}
+# load our data (not a generalizable function)
+load("data/schs.rda")
+load("data/winrecord.rda")
+# function
+ret <- nflKOSA::KOSA_sim_anneal(schs =  schs,
+                         winrecord = winrecord,
+                         iters = 1e1, 
+                         coolingB = 1e-3,
+                         initTemp = 1)
+
+```
