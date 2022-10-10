@@ -4,7 +4,13 @@
 \alias{KOSA_sim_anneal}
 \title{simulated annealing}
 \usage{
-KOSA_sim_anneal(iters = 1000, coolingB = 0.001, initTemp = 1)
+KOSA_sim_anneal(
+  schs = schs,
+  winrecord = winrecord,
+  iters = 1000,
+  coolingB = 0.001,
+  initTemp = 1
+)
 }
 \description{
 simulated annealing

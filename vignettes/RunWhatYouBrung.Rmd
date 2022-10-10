@@ -17,6 +17,9 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+library(tidyverse)
+#remotes::install_github("nflverse/nflplotR")
+library(nflplotR)
 library(nflKOSA)
 ```
 

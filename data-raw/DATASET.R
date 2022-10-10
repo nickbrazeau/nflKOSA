@@ -12,32 +12,32 @@ library(RCurl)
 # thanks to https://www.profootballnetwork.com/printable-nfl-schedule/ for putting
 # together a printer accessible version of the NFL schedule
 tmsdecoder <- readr::read_csv("data-raw/team_decoder.csv")
-oppmascot <- tmsdecoder %>%
+losemascot <- tmsdecoder %>%
   dplyr::select(c("mascot", "schlet")) %>%
-  dplyr::rename(opp = schlet,
-                oppmascot = mascot)
+  dplyr::rename(lose = schlet,
+                losemascot = mascot)
 #............................................................
 # tidy schedule
 #...........................................................
 schs <- readr::read_csv("data-raw/2022nflsch.csv")
 schs <- schs %>%
-  tidyr::pivot_longer(., cols = -c("Team"), names_to = "wk", values_to = "opp") %>%
+  tidyr::pivot_longer(., cols = -c("Team"), names_to = "wk", values_to = "lose") %>%
   dplyr::rename(team = Team) %>%
   dplyr::mutate(schlet = tolower(team),
-                opp = tolower(stringr::str_replace_all(string = opp, pattern = "vs.\\s|@|\\s|", replacement = "")),
+                lose = tolower(stringr::str_replace_all(string = lose, pattern = "vs.\\s|@|\\s|", replacement = "")),
                 wk = stringr::str_replace_all(string = wk, pattern = "Wk\\s", replacement = "")
                 ) %>%
-  dplyr::filter(opp != "bye") %>%
+  dplyr::filter(lose != "bye") %>%
   dplyr::left_join(., tmsdecoder, by = "schlet") %>%
-  dplyr::rename(home = schlet,
-                homemascot = mascot) %>%
-  dplyr::select(c("wk", "home", "homemascot", "opp")) %>%
-  dplyr::left_join(., oppmascot, by = "opp")
+  dplyr::rename(win = schlet,
+                winmascot = mascot) %>%
+  dplyr::select(c("wk", "win", "winmascot", "lose")) %>%
+  dplyr::left_join(., losemascot, by = "lose")
 #......................
-# need to duplicate/switch who is "home" because we do wins based on X pos
+# need to duplicate/switch who is "win" because we do wins based on X pos
 #......................
 schsreverse <- schs
-colnames(schsreverse) <- c("wk", "opp", "oppmascot", "home", "homemascot")
+colnames(schsreverse) <- c("wk", "lose", "losemascot", "win", "winmascot")
 schs <- dplyr::bind_rows(schs, schsreverse)
 
 usethis::use_data(schs, overwrite = T)
@@ -71,16 +71,6 @@ winrecord <- mapply(get_wins,
 # making a coding decision here to weight recent records
 winrecord <- winrecord %>%
   dplyr::bind_rows() %>%
-  dplyr::mutate(wins = dplyr::case_when(yr == 2021 ~ wins*10,
-                                        yr == 2020 ~ wins*9,
-                                        yr == 2019 ~ wins*8,
-                                        yr == 2018 ~ wins*7,
-                                        yr == 2017 ~ wins*6,
-                                        yr == 2016 ~ wins*5,
-                                        yr == 2015 ~ wins*4,
-                                        yr == 2014 ~ wins*3,
-                                        yr == 2013 ~ wins*2,
-                                        yr == 2012 ~ wins*1)) %>%
   dplyr::group_by(pfrlet) %>%
   dplyr::summarise(wins = sum(wins)) %>%
   dplyr::left_join(., tmsdecoder, by = "pfrlet") %>%
